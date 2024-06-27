@@ -88,7 +88,7 @@ export default defineNuxtModule<ModuleConfiguration>({
       'lodash.mergewith',
       '@sentry/browser',
       '@sentry/core',
-      '@sentry/integrations',
+      // '@sentry/integrations',
       '@sentry/utils',
       '@sentry/vue',
     ]

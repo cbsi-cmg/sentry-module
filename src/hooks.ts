@@ -83,7 +83,7 @@ export async function webpackConfigHook (nuxt: Nuxt, webpackConfigs: WebpackConf
   if (!publishRelease.release) {
     publishRelease.release = {}
   }
-  publishRelease.release.name = publishRelease.release.name || options.config.release || await resolveRelease(options)
+  publishRelease.release.name = publishRelease.release.name || options.config.release || (await resolveRelease(options))
   if (!publishRelease.release.name) {
     // We've already tried to determine "release" manually using Sentry CLI so to avoid webpack plugin crashing, we'll just bail here.
     logger.warn('Sentry release will not be published because "config.release" or "publishRelease.release.name" was not set nor it ' +

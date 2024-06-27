@@ -22,7 +22,7 @@ import {
   reportingObserverIntegration,
   rewriteFramesIntegration,
   sessionTimingIntegration,
-} from '@sentry/integrations'
+} from '@sentry/vue'
 import {
   Integrations,
 } from '@sentry/node'
