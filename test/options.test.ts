@@ -152,13 +152,12 @@ describe('Resolve Server Options', () => {
         tracesSampleRate: 1,
       },
       tracing: {
-        browserTracing: {},
+        browserTracing: {
+          routeLabel: 'name',
+        },
         tracesSampleRate: 1,
         vueOptions: {
           trackComponents: true,
-        },
-        vueRouterInstrumentationOptions: {
-          routeLabel: 'name',
         },
       },
     })

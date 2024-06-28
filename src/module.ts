@@ -50,7 +50,6 @@ export default defineNuxtModule<ModuleConfiguration>({
     },
     serverConfig: {},
     clientConfig: {},
-    requestHandlerConfig: {},
   }),
   async setup (options, nuxt) {
     const defaultsPublishRelease: SentryWebpackPluginOptions = {
