@@ -11,7 +11,6 @@ import type { Nuxt } from './kit-shim'
 import type { ModuleConfiguration } from './types/configuration'
 import { clientSentryEnabled, serverSentryEnabled, canInitialize } from './utils'
 import { resolveRelease, ResolvedClientOptions, resolveClientOptions, ResolvedServerOptions, resolveServerOptions } from './options'
-import type { SentryHandlerProxy } from './options'
 
 const RESOLVED_RELEASE_FILENAME = 'sentry.release.config.mjs'
 
@@ -98,7 +97,7 @@ export async function webpackConfigHook (nuxt: Nuxt, webpackConfigs: WebpackConf
   }
 }
 
-export async function initializeServerSentry (nuxt: Nuxt, moduleOptions: ModuleConfiguration, sentryHandlerProxy: SentryHandlerProxy, logger: ConsolaInstance): Promise<void> {
+export async function initializeServerSentry (nuxt: Nuxt, moduleOptions: ModuleConfiguration, logger: ConsolaInstance): Promise<void> {
   if (process.sentry) {
     return
   }
@@ -118,11 +117,8 @@ export async function initializeServerSentry (nuxt: Nuxt, moduleOptions: ModuleC
 
   if (canInitialize(moduleOptions)) {
     Sentry.init(config)
-    sentryHandlerProxy.errorHandler = Sentry.Handlers.errorHandler()
-    sentryHandlerProxy.requestHandler = Sentry.Handlers.requestHandler(moduleOptions.requestHandlerConfig)
-    if (serverOptions.tracing) {
-      sentryHandlerProxy.tracingHandler = Sentry.Handlers.tracingHandler()
-    }
+    // https://docs.sentry.io/platforms/javascript/guides/express/migration/v7-to-v8/#updated-sdk-initialization
+    nuxt.hook('render:setupMiddleware', (app: any) => app.use(() => Sentry.setupExpressErrorHandler(app)))
   }
 }
 

@@ -3,10 +3,11 @@ import type { ConsolaInstance } from 'consola'
 import { defu } from 'defu'
 import initJiti from 'jiti'
 import { relative } from 'pathe'
-import { getDefaultIntegrations, httpIntegration } from '@sentry/node'
+// import { getDefaultIntegrations } from '@sentry/node'
+import * as SentryNode from '@sentry/node'
 import type * as Sentry from '@sentry/node'
 import * as SentryCore from '@sentry/core'
-import * as PluggableIntegrations from '@sentry/vue'
+// import * as PluggableIntegrations from '@sentry/vue'
 import type { Integration, Options } from '@sentry/types'
 import type { LazyConfiguration, TracingConfiguration } from './types/configuration'
 import type { AllIntegrations, BrowserIntegrations, ClientCoreIntegrations, ClientIntegrations, ClientPluggableIntegrations, NodeIntegrations, NodeProfilingIntegrations, ServerCoreIntegrations, ServerIntegrations, ServerPluggableIntegrations } from './types/sentry'
@@ -15,12 +16,6 @@ import { Nuxt, resolveAlias } from './kit-shim'
 import { canInitialize } from './utils'
 
 const jiti = initJiti(fileURLToPath(import.meta.url))
-
-export interface SentryHandlerProxy {
-    errorHandler: ReturnType<typeof Sentry.Handlers.errorHandler>
-    requestHandler: ReturnType<typeof Sentry.Handlers.requestHandler>
-    tracingHandler: ReturnType<typeof Sentry.Handlers.tracingHandler>
-}
 
 type BooleanMap<T extends Record<string, unknown>> = Record<keyof T, true>
 type IntegrationToImportMapping = Record<keyof AllIntegrations, string>
@@ -51,23 +46,30 @@ export const BROWSER_INTEGRATIONS: BooleanMap<BrowserIntegrations> = {
 }
 
 // Optional in Vue - https://docs.sentry.io/platforms/javascript/guides/vue/configuration/integrations/plugin/
-export const BROWSER_PLUGGABLE_INTEGRATIONS: BooleanMap<ClientPluggableIntegrations> = {
-  CaptureConsole: true,
-  ContextLines: true,
-  Debug: true,
-  Dedupe: true,
-  ExtraErrorData: true,
-  HttpClient: true,
-  ReportingObserver: true,
-  RewriteFrames: true,
-  SessionTiming: true,
-}
+// export const BROWSER_PLUGGABLE_INTEGRATIONS: BooleanMap<ClientPluggableIntegrations> = {
+//   CaptureConsole: true,
+//   ContextLines: true,
+//   Debug: true,
+//   Dedupe: true,
+//   ExtraErrorData: true,
+//   HttpClient: true,
+//   ReportingObserver: true,
+//   RewriteFrames: true,
+//   SessionTiming: true,
+// }
 
 const SERVER_CORE_INTEGRATIONS: BooleanMap<ServerCoreIntegrations> = {
   FunctionToString: true,
   InboundFilters: true,
   LinkedErrors: true,
   RequestData: true,
+  // Integrations that are now exported from @sentry/node and @sentry/browser:
+  CaptureConsole: true,
+  Debug: true,
+  Dedupe: true,
+  ExtraErrorData: true,
+  RewriteFrames: true,
+  SessionTiming: true,
 }
 
 // Enabled by default in Node.js - https://docs.sentry.io/platforms/node/configuration/integrations/default-integrations/
@@ -91,26 +93,19 @@ const SERVER_NODE_INTEGRATIONS: BooleanMap<NodeIntegrations> = {
   Prisma: true,
   Spotlight: true,
   Undici: true,
-  // Integrations that are now exported from @sentry/node and @sentry/browser:
-  CaptureConsole: true,
-  Debug: true,
-  Dedupe: true,
-  ExtraErrorData: true,
-  RewriteFrames: true,
-  SessionTiming: true,
 }
 
 // Optional in Node.js - https://docs.sentry.io/platforms/node/configuration/integrations/pluggable-integrations/
-const SERVER_PLUGGABLE_INTEGRATIONS: BooleanMap<ServerPluggableIntegrations> = {
-  CaptureConsole: true,
-  Debug: true,
-  Dedupe: true,
-  ExtraErrorData: true,
-  HttpClient: true,
-  ReportingObserver: true,
-  RewriteFrames: true,
-  SessionTiming: true,
-}
+// const SERVER_PLUGGABLE_INTEGRATIONS: BooleanMap<ServerPluggableIntegrations> = {
+//   CaptureConsole: true,
+//   Debug: true,
+//   Dedupe: true,
+//   ExtraErrorData: true,
+//   HttpClient: true,
+//   ReportingObserver: true,
+//   RewriteFrames: true,
+//   SessionTiming: true,
+// }
 
 const INTEGRATION_TO_IMPORT_NAME_MAP: IntegrationToImportMapping = {
   Anr: 'Anr',
@@ -187,9 +182,9 @@ function isBrowserDefaultIntegration (name: string): name is keyof BrowserIntegr
   return name in BROWSER_INTEGRATIONS
 }
 
-function isBrowserPluggableIntegration (name: string): name is keyof ClientPluggableIntegrations {
-  return name in BROWSER_PLUGGABLE_INTEGRATIONS
-}
+// function isBrowserPluggableIntegration (name: string): name is keyof ClientPluggableIntegrations {
+//   return name in BROWSER_PLUGGABLE_INTEGRATIONS
+// }
 
 function isServerCoreIntegration (name: string): name is keyof ServerCoreIntegrations {
   return name in SERVER_CORE_INTEGRATIONS
@@ -199,9 +194,9 @@ function isServerNodeIntegration (name: string): name is keyof NodeIntegrations 
   return name in SERVER_NODE_INTEGRATIONS
 }
 
-function isServerPlugabbleIntegration (name: string): name is keyof ServerPluggableIntegrations {
-  return name in SERVER_PLUGGABLE_INTEGRATIONS
-}
+// function isServerPlugabbleIntegration (name: string): name is keyof ServerPluggableIntegrations {
+//   return name in SERVER_PLUGGABLE_INTEGRATIONS
+// }
 
 async function getApiMethods (packageName: string): Promise<string[]> {
   const packageApi = await import(packageName)
@@ -326,7 +321,8 @@ export async function resolveClientOptions (nuxt: Nuxt, moduleOptions: Readonly<
   resolveTracingOptions(options)
 
   for (const name of getIntegrationsKeys(options.clientIntegrations)) {
-    if (!isBrowserDefaultIntegration(name) && !isBrowserCoreIntegration(name) && !isBrowserPluggableIntegration(name)) {
+    // if (!isBrowserDefaultIntegration(name) && !isBrowserCoreIntegration(name) && !isBrowserPluggableIntegration(name)) {
+    if (!isBrowserDefaultIntegration(name) && !isBrowserCoreIntegration(name)) {
       logger.warn(`Sentry clientIntegration "${name}" is not recognized and will be ignored.`)
       delete options.clientIntegrations[name]
     }
@@ -354,9 +350,9 @@ export async function resolveClientOptions (nuxt: Nuxt, moduleOptions: Readonly<
         importsBrowser.push(importName)
       } else if (key in BROWSER_CORE_INTEGRATIONS) {
         importsCore.push(importName)
-      } else if (key in BROWSER_PLUGGABLE_INTEGRATIONS) {
+      // } else if (key in BROWSER_PLUGGABLE_INTEGRATIONS) {
         // importsPluggable.push(importName)
-        importsBrowser.push(importName)
+        // importsBrowser.push(importName)
       }
 
       res[importName] = options.clientIntegrations[key]
@@ -419,7 +415,8 @@ export async function resolveServerOptions (nuxt: Nuxt, moduleOptions: Readonly<
   options.config = defu(getServerRuntimeConfig(nuxt, options), options.serverConfig, options.config)
 
   for (const name of getIntegrationsKeys(options.serverIntegrations)) {
-    if (!isServerNodeIntegration(name) && !isServerCoreIntegration(name) && !isServerPlugabbleIntegration(name) && name !== SERVER_PROFILING_INTEGRATION) {
+    // if (!isServerNodeIntegration(name) && !isServerCoreIntegration(name) && !isServerPlugabbleIntegration(name) && name !== SERVER_PROFILING_INTEGRATION) {
+    if (!isServerNodeIntegration(name) && !isServerCoreIntegration(name) && name !== SERVER_PROFILING_INTEGRATION) {
       logger.warn(`Sentry serverIntegration "${name}" is not recognized and will be ignored.`)
       delete options.serverIntegrations[name]
     }
@@ -453,8 +450,6 @@ export async function resolveServerOptions (nuxt: Nuxt, moduleOptions: Readonly<
     }
   }
 
-  // console.log(PluggableIntegrations)
-
   const resolvedIntegrations = [
     // Automatically instrument Node.js libraries and frameworks
     ...getEnabledIntegrations(options.serverIntegrations)
@@ -467,12 +462,13 @@ export async function resolveServerOptions (nuxt: Nuxt, moduleOptions: Readonly<
             // eslint-disable-next-line import/namespace
             return Object.keys(opt as Record<string, unknown>).length ? SentryCore[importName](opt) : SentryCore[importName]()
           } else if (isServerNodeIntegration(name)) {
-            return getDefaultIntegrations(opt).find(integration => integration.name === name)
-          } else if (isServerPlugabbleIntegration(name)) {
+            // return getDefaultIntegrations(opt).find(integration => integration.name === name)
             // @ts-expect-error Some integrations don't take arguments but it doesn't hurt to pass one.
-            // console.log(PluggableIntegrations[importName])
             // eslint-disable-next-line import/namespace
-            return Object.keys(opt as Record<string, unknown>).length ? PluggableIntegrations[importName](opt) : PluggableIntegrations[importName]()
+            return Object.keys(opt as Record<string, unknown>).length ? SentryNode[importName](opt) : SentryNode[importName]()
+          // } else if (isServerPlugabbleIntegration(name)) {
+            // // eslint-disable-next-line import/namespace
+            // return Object.keys(opt as Record<string, unknown>).length ? PluggableIntegrations[importName](opt) : PluggableIntegrations[importName]()
           } else {
             throw new Error(`Unsupported server integration "${name}"`)
           }
