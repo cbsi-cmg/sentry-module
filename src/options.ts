@@ -47,15 +47,6 @@ const SERVER_CORE_INTEGRATIONS: BooleanMap<ServerCoreIntegrations> = {
   InboundFilters: true,
   LinkedErrors: true,
   RequestData: true,
-  // Integrations that are now exported from @sentry/node and @sentry/browser:
-  CaptureConsole: true,
-  Debug: true,
-  Dedupe: true,
-  ExtraErrorData: true,
-  HttpClient: true,
-  ReportingObserver: true,
-  RewriteFrames: true,
-  SessionTiming: true,
 }
 
 // Enabled by default in Node.js - https://docs.sentry.io/platforms/node/configuration/integrations/default-integrations/
@@ -79,6 +70,15 @@ const SERVER_NODE_INTEGRATIONS: BooleanMap<NodeIntegrations> = {
   Prisma: true,
   Spotlight: true,
   Undici: true,
+  // Integrations that are now exported from @sentry/node and @sentry/browser:
+  CaptureConsole: true,
+  Debug: true,
+  Dedupe: true,
+  ExtraErrorData: true,
+  HttpClient: true,
+  ReportingObserver: true,
+  RewriteFrames: true,
+  SessionTiming: true,
 }
 
 const INTEGRATION_TO_IMPORT_NAME_MAP: IntegrationToImportMapping = {

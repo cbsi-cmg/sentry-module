@@ -68,14 +68,6 @@ export type CoreIntegrations = {
     InboundFilters?: IntegrationConfig<typeof inboundFiltersIntegration>
     LinkedErrors?: IntegrationConfig<typeof linkedErrorsIntegration>
     RequestData?: IntegrationConfig<typeof requestDataIntegration>
-    CaptureConsole?: IntegrationConfig<typeof captureConsoleIntegration>
-    Debug?: IntegrationConfig<typeof debugIntegration>
-    Dedupe?: IntegrationConfig<typeof dedupeIntegration>
-    ExtraErrorData?: IntegrationConfig<typeof extraErrorDataIntegration>
-    HttpClient?: IntegrationConfig<typeof httpClientIntegration>
-    ReportingObserver?: IntegrationConfig<typeof reportingObserverIntegration>
-    RewriteFrames?: IntegrationConfig<typeof rewriteFramesIntegration>
-    SessionTiming?: IntegrationConfig<typeof sessionTimingIntegration>
 }
 
 export type NodeProfilingIntegrations = {
@@ -102,6 +94,14 @@ export type NodeIntegrations = {
     Prisma?: IntegrationConfig<typeof prismaIntegration>
     Spotlight?: IntegrationConfig<typeof spotlightIntegration>
     Undici?: IntegrationConfig<typeof nativeNodeFetchIntegration>
+    CaptureConsole?: IntegrationConfig<typeof captureConsoleIntegration>
+    Debug?: IntegrationConfig<typeof debugIntegration>
+    Dedupe?: IntegrationConfig<typeof dedupeIntegration>
+    ExtraErrorData?: IntegrationConfig<typeof extraErrorDataIntegration>
+    HttpClient?: IntegrationConfig<typeof httpClientIntegration>
+    ReportingObserver?: IntegrationConfig<typeof reportingObserverIntegration>
+    RewriteFrames?: IntegrationConfig<typeof rewriteFramesIntegration>
+    SessionTiming?: IntegrationConfig<typeof sessionTimingIntegration>
 }
 
 export type ClientCoreIntegrations = Pick<CoreIntegrations, 'FunctionToString' | 'InboundFilters' | 'LinkedErrors'>
