@@ -52,7 +52,6 @@ const SERVER_CORE_INTEGRATIONS: BooleanMap<ServerCoreIntegrations> = {
 // Enabled by default in Node.js - https://docs.sentry.io/platforms/node/configuration/integrations/default-integrations/
 const SERVER_NODE_INTEGRATIONS: BooleanMap<NodeIntegrations> = {
   Anr: true,
-  // Apollo: true,
   Console: true,
   Context: true,
   ContextLines: true,
@@ -83,7 +82,6 @@ const SERVER_NODE_INTEGRATIONS: BooleanMap<NodeIntegrations> = {
 
 const INTEGRATION_TO_IMPORT_NAME_MAP: IntegrationToImportMapping = {
   Anr: 'anrIntegration',
-  // Apollo: 'Apollo',
   Breadcrumbs: 'breadcrumbsIntegration',
   CaptureConsole: 'captureConsoleIntegration',
   Console: 'consoleIntegration',

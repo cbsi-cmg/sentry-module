@@ -21,6 +21,7 @@ export interface TracingConfiguration extends Pick<SentryOptions, 'tracesSampleR
 }
 
 export interface ModuleConfiguration {
+  // Comment out and type with 'any' for now - '@sentry/vue/build/types/types' does not exist
   // clientConfig: Partial<SentryVueOptions> | string
   clientConfig: Record<any, any> | string
   clientIntegrations: ClientIntegrations

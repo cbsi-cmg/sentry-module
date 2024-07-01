@@ -76,7 +76,6 @@ export type NodeProfilingIntegrations = {
 
 export type NodeIntegrations = {
     Anr?: IntegrationConfig<typeof anrIntegration>
-    // Apollo?: IntegrationConfig<typeof Integrations.Apollo>
     Console?: IntegrationConfig<typeof consoleIntegration>
     Context?: IntegrationConfig<typeof nodeContextIntegration>
     ContextLines?: IntegrationConfig<typeof contextLinesIntegration>
