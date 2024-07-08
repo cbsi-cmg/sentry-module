@@ -7,7 +7,6 @@ import type { Configuration as WebpackConfig } from 'webpack'
 import { defineNuxtModule, isNuxt2, useLogger } from './kit-shim'
 import { envToBool, boolToText, callOnce, canInitialize, clientSentryEnabled, serverSentryEnabled } from './utils'
 import { buildHook, initializeServerSentry, shutdownServerSentry, webpackConfigHook } from './hooks'
-import type { SentryHandlerProxy } from './options'
 import type { ModuleConfiguration, ModuleOptions, ModulePublicRuntimeConfig } from './types'
 
 export type { ModuleOptions, ModulePublicRuntimeConfig }
@@ -51,7 +50,6 @@ export default defineNuxtModule<ModuleConfiguration>({
     },
     serverConfig: {},
     clientConfig: {},
-    requestHandlerConfig: {},
   }),
   async setup (options, nuxt) {
     const defaultsPublishRelease: SentryWebpackPluginOptions = {
@@ -88,7 +86,6 @@ export default defineNuxtModule<ModuleConfiguration>({
       'lodash.mergewith',
       '@sentry/browser',
       '@sentry/core',
-      '@sentry/integrations',
       '@sentry/utils',
       '@sentry/vue',
     ]
@@ -97,24 +94,6 @@ export default defineNuxtModule<ModuleConfiguration>({
     }
 
     if (serverSentryEnabled(options)) {
-      /**
-       * Proxy that provides a dummy request handler before Sentry is initialized and gets replaced with Sentry's own
-       * handler after initialization. Otherwise server-side request tracing would not work as it depends on Sentry being
-       * initialized already during handler creation.
-       */
-      const sentryHandlerProxy: SentryHandlerProxy = {
-        errorHandler: (error, _, __, next) => { next(error) },
-        requestHandler: (_, __, next) => { next() },
-        tracingHandler: (_, __, next) => { next() },
-      }
-      // @ts-expect-error Nuxt 2 only hook
-      nuxt.hook('render:setupMiddleware', app => app.use((req, res, next) => { sentryHandlerProxy.requestHandler(req, res, next) }))
-      if (options.tracing) {
-        // @ts-expect-error Nuxt 2 only hook
-        nuxt.hook('render:setupMiddleware', app => app.use((req, res, next) => { sentryHandlerProxy.tracingHandler(req, res, next) }))
-      }
-      // @ts-expect-error Nuxt 2 only hook
-      nuxt.hook('render:errorMiddleware', app => app.use((error, req, res, next) => { sentryHandlerProxy.errorHandler(error, req, res, next) }))
       // @ts-expect-error Nuxt 2 only hook
       nuxt.hook('generate:routeFailed', ({ route, errors }) => {
         type routeGeneretorError = {
@@ -139,7 +118,7 @@ export default defineNuxtModule<ModuleConfiguration>({
       if (isNuxt2()) {
         const isBuilding = nuxt.options._build && !nuxt.options.dev
         const initHook = isBuilding ? 'build:compile' : 'ready'
-        nuxt.hook(initHook, () => initializeServerSentry(nuxt, options, sentryHandlerProxy, logger))
+        nuxt.hook(initHook, () => initializeServerSentry(nuxt, options, logger))
         const shutdownHook = isBuilding ? 'build:done' : 'close'
         const shutdownServerSentryOnce = callOnce(() => shutdownServerSentry())
         nuxt.hook(shutdownHook, shutdownServerSentryOnce)

@@ -15,9 +15,6 @@
       "~@sentry/core": [
         "./node_modules/@sentry/core"
       ],
-      "~@sentry/integrations": [
-        "./node_modules/@sentry/integrations"
-      ],
       "~@sentry/utils": [
         "./node_modules/@sentry/utils"
       ],

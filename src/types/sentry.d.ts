@@ -1,4 +1,4 @@
-import { IntegrationFn, IntegrationClass, Integration } from '@sentry/types'
+import { IntegrationFn } from '@sentry/types'
 import {
   breadcrumbsIntegration,
   browserApiErrorsIntegration,
@@ -14,7 +14,7 @@ import {
 } from '@sentry/core'
 import {
   captureConsoleIntegration,
-  contextLinesIntegration,
+  contextLinesIntegration as vueContextLinesIntegration,
   debugIntegration,
   dedupeIntegration,
   extraErrorDataIntegration,
@@ -22,13 +22,29 @@ import {
   reportingObserverIntegration,
   rewriteFramesIntegration,
   sessionTimingIntegration,
-} from '@sentry/integrations'
+} from '@sentry/vue'
 import {
-  Integrations,
+  anrIntegration,
+  consoleIntegration,
+  contextLinesIntegration,
+  expressIntegration,
+  graphqlIntegration,
+  hapiIntegration,
+  httpIntegration,
+  localVariablesIntegration,
+  modulesIntegration,
+  mongoIntegration,
+  mysqlIntegration,
+  nativeNodeFetchIntegration,
+  nodeContextIntegration,
+  onUncaughtExceptionIntegration,
+  onUnhandledRejectionIntegration,
+  postgresIntegration,
+  prismaIntegration,
+  spotlightIntegration,
 } from '@sentry/node'
 
 type IntegrationConfig<T extends IntegrationFn> = Parameters<T>[0] | Record<string, never> | false
-type ClassIntegrationConfig<T extends IntegrationClass<Integration>> = ConstructorParameters<T>[0] | Record<string, never> | false
 
 export type BrowserIntegrations = {
     Breadcrumbs?: IntegrationConfig<typeof breadcrumbsIntegration>
@@ -36,18 +52,8 @@ export type BrowserIntegrations = {
     HttpContext?: IntegrationConfig<typeof httpContextIntegration>
     Replay?: IntegrationConfig<typeof replayIntegration>
     TryCatch?: IntegrationConfig<typeof browserApiErrorsIntegration>
-}
-
-export type CoreIntegrations = {
-    FunctionToString?: IntegrationConfig<typeof functionToStringIntegration>
-    InboundFilters?: IntegrationConfig<typeof inboundFiltersIntegration>
-    LinkedErrors?: IntegrationConfig<typeof linkedErrorsIntegration>
-    RequestData?: IntegrationConfig<typeof requestDataIntegration>
-}
-
-export type PluggableIntegrations = {
     CaptureConsole?: IntegrationConfig<typeof captureConsoleIntegration>
-    ContextLines?: IntegrationConfig<typeof contextLinesIntegration>
+    ContextLines?: IntegrationConfig<typeof vueContextLinesIntegration>
     Debug?: IntegrationConfig<typeof debugIntegration>
     Dedupe?: IntegrationConfig<typeof dedupeIntegration>
     ExtraErrorData?: IntegrationConfig<typeof extraErrorDataIntegration>
@@ -57,38 +63,50 @@ export type PluggableIntegrations = {
     SessionTiming?: IntegrationConfig<typeof sessionTimingIntegration>
 }
 
+export type CoreIntegrations = {
+    FunctionToString?: IntegrationConfig<typeof functionToStringIntegration>
+    InboundFilters?: IntegrationConfig<typeof inboundFiltersIntegration>
+    LinkedErrors?: IntegrationConfig<typeof linkedErrorsIntegration>
+    RequestData?: IntegrationConfig<typeof requestDataIntegration>
+}
+
 export type NodeProfilingIntegrations = {
     ProfilingIntegration?: IntegrationConfig<IntegrationFn> // Dummy type since we don't want to depend on `@sentry/profiling-node`
 }
 
 export type NodeIntegrations = {
-    Anr?: ClassIntegrationConfig<typeof Integrations.Anr>
-    Apollo?: ClassIntegrationConfig<typeof Integrations.Apollo>
-    Console?: ClassIntegrationConfig<typeof Integrations.Console>
-    Context?: ClassIntegrationConfig<typeof Integrations.Context>
-    ContextLines?: ClassIntegrationConfig<typeof Integrations.ContextLines>
-    Express?: ClassIntegrationConfig<typeof Integrations.Express>
-    GraphQL?: ClassIntegrationConfig<typeof Integrations.GraphQL>
-    Hapi?: ClassIntegrationConfig<typeof Integrations.Hapi>
-    Http?: ClassIntegrationConfig<typeof Integrations.Http>
-    LocalVariables?: ClassIntegrationConfig<typeof Integrations.LocalVariables>
-    Modules?: ClassIntegrationConfig<typeof Integrations.Modules>
-    Mongo?: ClassIntegrationConfig<typeof Integrations.Mongo>
-    Mysql?: ClassIntegrationConfig<typeof Integrations.Mysql>
-    OnUncaughtException?: ClassIntegrationConfig<typeof Integrations.OnUncaughtException>
-    OnUnhandledRejection?: ClassIntegrationConfig<typeof Integrations.OnUnhandledRejection>
-    Postgres?: ClassIntegrationConfig<typeof Integrations.Postgres>
-    Prisma?: ClassIntegrationConfig<typeof Integrations.Prisma>
-    Spotlight?: ClassIntegrationConfig<typeof Integrations.Spotlight>
-    Undici?: ClassIntegrationConfig<typeof Integrations.Undici>
+    Anr?: IntegrationConfig<typeof anrIntegration>
+    Console?: IntegrationConfig<typeof consoleIntegration>
+    Context?: IntegrationConfig<typeof nodeContextIntegration>
+    ContextLines?: IntegrationConfig<typeof contextLinesIntegration>
+    Express?: IntegrationConfig<typeof expressIntegration>
+    GraphQL?: IntegrationConfig<typeof graphqlIntegration>
+    Hapi?: IntegrationConfig<typeof hapiIntegration>
+    Http?: IntegrationConfig<typeof httpIntegration>
+    LocalVariables?: IntegrationConfig<typeof localVariablesIntegration>
+    Modules?: IntegrationConfig<typeof modulesIntegration>
+    Mongo?: IntegrationConfig<typeof mongoIntegration>
+    Mysql?: IntegrationConfig<typeof mysqlIntegration>
+    OnUncaughtException?: IntegrationConfig<typeof onUncaughtExceptionIntegration>
+    OnUnhandledRejection?: IntegrationConfig<typeof onUnhandledRejectionIntegration>
+    Postgres?: IntegrationConfig<typeof postgresIntegration>
+    Prisma?: IntegrationConfig<typeof prismaIntegration>
+    Spotlight?: IntegrationConfig<typeof spotlightIntegration>
+    Undici?: IntegrationConfig<typeof nativeNodeFetchIntegration>
+    CaptureConsole?: IntegrationConfig<typeof captureConsoleIntegration>
+    Debug?: IntegrationConfig<typeof debugIntegration>
+    Dedupe?: IntegrationConfig<typeof dedupeIntegration>
+    ExtraErrorData?: IntegrationConfig<typeof extraErrorDataIntegration>
+    HttpClient?: IntegrationConfig<typeof httpClientIntegration>
+    ReportingObserver?: IntegrationConfig<typeof reportingObserverIntegration>
+    RewriteFrames?: IntegrationConfig<typeof rewriteFramesIntegration>
+    SessionTiming?: IntegrationConfig<typeof sessionTimingIntegration>
 }
 
 export type ClientCoreIntegrations = Pick<CoreIntegrations, 'FunctionToString' | 'InboundFilters' | 'LinkedErrors'>
-export type ClientPluggableIntegrations = PluggableIntegrations
-export type ClientIntegrations = ClientCoreIntegrations & ClientPluggableIntegrations & BrowserIntegrations
+export type ClientIntegrations = ClientCoreIntegrations & BrowserIntegrations
 
 export type ServerCoreIntegrations = CoreIntegrations
-export type ServerPluggableIntegrations = Omit<PluggableIntegrations, 'ContextLines'>
-export type ServerIntegrations = ServerCoreIntegrations & ServerPluggableIntegrations & NodeProfilingIntegrations & NodeIntegrations
+export type ServerIntegrations = ServerCoreIntegrations & NodeProfilingIntegrations & NodeIntegrations
 
 export type AllIntegrations = ClientIntegrations & ServerIntegrations

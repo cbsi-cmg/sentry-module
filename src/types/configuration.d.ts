@@ -1,8 +1,8 @@
 import { Options as SentryOptions } from '@sentry/types'
-import { browserTracingIntegration, vueRouterInstrumentation } from '@sentry/vue'
-import { Options as SentryVueOptions, TracingOptions as SentryVueTracingOptions } from '@sentry/vue/types/types'
+import { browserTracingIntegration, vueIntegration } from '@sentry/vue'
+// import { Options as SentryVueOptions } from '@sentry/vue/build/types/types'
 import { SentryWebpackPluginOptions } from '@sentry/webpack-plugin'
-import { NodeOptions, Handlers } from '@sentry/node'
+import { NodeOptions } from '@sentry/node'
 import { Configuration as WebpackOptions } from 'webpack'
 import { ClientIntegrations, ServerIntegrations } from './sentry'
 
@@ -17,12 +17,13 @@ export interface LazyConfiguration {
 
 export interface TracingConfiguration extends Pick<SentryOptions, 'tracesSampleRate'> {
     browserTracing?: Parameters<typeof browserTracingIntegration>[0]
-    vueOptions?: Partial<SentryVueTracingOptions>
-    vueRouterInstrumentationOptions?: Parameters<typeof vueRouterInstrumentation>[1]
+    vueOptions?: Partial<Parameters<typeof vueIntegration>>[0]
 }
 
 export interface ModuleConfiguration {
-  clientConfig: Partial<SentryVueOptions> | string
+  // Comment out and type with 'any' for now - '@sentry/vue/build/types/types' does not exist
+  // clientConfig: Partial<SentryVueOptions> | string
+  clientConfig: Record<any, any> | string
   clientIntegrations: ClientIntegrations
   config: SentryOptions
   customClientIntegrations: string
@@ -43,7 +44,6 @@ export interface ModuleConfiguration {
   serverConfig: NodeOptions | string
   serverIntegrations: ServerIntegrations
   sourceMapStyle: WebpackOptions['devtool']
-  requestHandlerConfig: Handlers.RequestHandlerOptions
 }
 
 export type PartialModuleConfiguration = Partial<ModuleConfiguration>

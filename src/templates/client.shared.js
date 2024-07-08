@@ -1,6 +1,6 @@
 import merge from '~lodash.mergewith'
 import * as CoreSdk from '~@sentry/core'
-import { captureUserFeedback, forceLoad, onLoad, showReportDialog, wrap } from '~@sentry/browser'
+import { captureUserFeedback, forceLoad, onLoad, showReportDialog } from '~@sentry/browser'
 <%
 for (const [package, imports] of Object.entries(options.imports)) {
   if (imports.length) {
@@ -14,7 +14,7 @@ if (options.customClientIntegrations) {%>import getCustomIntegrations from '<%= 
 <%}%>
 
 export { init }
-export const SentrySdk = { ...CoreSdk, ...{ captureUserFeedback, forceLoad, onLoad, showReportDialog, wrap } }
+export const SentrySdk = { ...CoreSdk, ...{ captureUserFeedback, forceLoad, onLoad, showReportDialog } }
 
 /** @type {string[]} */
 const DISABLED_INTEGRATION_KEYS = <%= serialize(options.DISABLED_INTEGRATION_KEYS) %>
@@ -55,11 +55,10 @@ export<%= (options.clientConfigPath || options.customClientIntegrations) ? ' asy
   ]
   <%
   if (options.tracing) {
-    const { browserTracing, vueOptions, vueRouterInstrumentationOptions, ...tracingOptions } = options.tracing
+    const { browserTracing, vueOptions, ...tracingOptions } = options.tracing
   %>
   resolvedIntegrations.push(browserTracingIntegration({
     router: ctx.app.router,
-    ...<%= serialize(vueRouterInstrumentationOptions) %>,
     ...<%= serialize(browserTracing) %>,
   }))
   merge(config, <%= serialize(vueOptions) %>, <%= serialize(tracingOptions) %>)
